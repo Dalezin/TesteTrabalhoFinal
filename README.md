@@ -28,7 +28,7 @@ Durante o desenvolvimento e testes do projeto, foram encontrados os seguintes pr
 2. **Tentativas:**
    Para tentar contornar tentei utilizar diversas alternativas como MakeFile, adicionar a pasta munit.h em um atalho, mas nada funciona. Acredito que o problema seja na minha maquina, pois todo o restante do codigo não da erro.
 
-## Como Executar o Projeto
+## Como Executar o Projeto de Teste
 
 Para compilar e executar o projeto:
 
