@@ -42,6 +42,3 @@ Para compilar e executar o projeto:
 5.Caso queira tentar com make file utilize:
   make
   ./test_hotel_management
-
-
-6.
