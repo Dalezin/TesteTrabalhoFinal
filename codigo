@@ -1,0 +1,296 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define MAX_CLIENTES 100
+#define MAX_FUNCIONARIOS 50
+#define MAX_ESTADIAS 200
+#define MAX_QUARTOS 50
+
+typedef struct {
+    int codigo;
+    char nome[50];
+    char endereco[100];
+    char telefone[20];
+} Cliente;
+
+typedef struct {
+    int codigo;
+    char nome[50];
+    char telefone[20];
+    char cargo[30];
+    float salario;
+} Funcionario;
+
+typedef struct {
+    int codigo;
+    int codigo_cliente;
+    int numero_quarto;
+    char data_entrada[11];
+    char data_saida[11];
+    int quantidade_diarias;
+} Estadia;
+
+typedef struct {
+    int numero;
+    int quantidade_hospedes;
+    float valor_diaria;
+    char status[15]; // ocupado ou desocupado
+} Quarto;
+
+Cliente clientes[MAX_CLIENTES];
+Funcionario funcionarios[MAX_FUNCIONARIOS];
+Estadia estadias[MAX_ESTADIAS];
+Quarto quartos[MAX_QUARTOS];
+
+int total_clientes = 0;
+int total_funcionarios = 0;
+int total_estadias = 0;
+int total_quartos = 0;
+
+// Função para calcular quantidade de dias entre duas datas
+int calcular_diarias(char *data_entrada, char *data_saida) {
+    struct tm entrada = {0}, saida = {0};
+    strptime(data_entrada, "%d/%m/%Y", &entrada);
+    strptime(data_saida, "%d/%m/%Y", &saida);
+    time_t t_entrada = mktime(&entrada);
+    time_t t_saida = mktime(&saida);
+    double seconds = difftime(t_saida, t_entrada);
+    return seconds / (60 * 60 * 24);
+}
+
+void cadastrar_cliente() {
+    if (total_clientes >= MAX_CLIENTES) {
+        printf("Capacidade máxima de clientes atingida.\n");
+        return;
+    }
+
+    Cliente c;
+    c.codigo = total_clientes + 1;
+    printf("Digite o nome do cliente: ");
+    scanf(" %[^\n]", c.nome);
+    printf("Digite o endereço do cliente: ");
+    scanf(" %[^\n]", c.endereco);
+    printf("Digite o telefone do cliente: ");
+    scanf(" %[^\n]", c.telefone);
+
+    clientes[total_clientes++] = c;
+    printf("Cliente cadastrado com sucesso. Código: %d\n", c.codigo);
+}
+
+void cadastrar_funcionario() {
+    if (total_funcionarios >= MAX_FUNCIONARIOS) {
+        printf("Capacidade máxima de funcionários atingida.\n");
+        return;
+    }
+
+    Funcionario f;
+    f.codigo = total_funcionarios + 1;
+    printf("Digite o nome do funcionário: ");
+    scanf(" %[^\n]", f.nome);
+    printf("Digite o telefone do funcionário: ");
+    scanf(" %[^\n]", f.telefone);
+    printf("Digite o cargo do funcionário: ");
+    scanf(" %[^\n]", f.cargo);
+    printf("Digite o salário do funcionário: ");
+    scanf("%f", &f.salario);
+
+    funcionarios[total_funcionarios++] = f;
+    printf("Funcionário cadastrado com sucesso. Código: %d\n", f.codigo);
+}
+
+void cadastrar_quarto() {
+    if (total_quartos >= MAX_QUARTOS) {
+        printf("Capacidade máxima de quartos atingida.\n");
+        return;
+    }
+
+    Quarto q;
+    printf("Digite o número do quarto: ");
+    scanf("%d", &q.numero);
+    printf("Digite a quantidade de hóspedes: ");
+    scanf("%d", &q.quantidade_hospedes);
+    printf("Digite o valor da diária: ");
+    scanf("%f", &q.valor_diaria);
+    strcpy(q.status, "desocupado");
+
+    quartos[total_quartos++] = q;
+    printf("Quarto cadastrado com sucesso. Número: %d\n", q.numero);
+}
+
+void cadastrar_estadia() {
+    if (total_estadias >= MAX_ESTADIAS) {
+        printf("Capacidade máxima de estadias atingida.\n");
+        return;
+    }
+
+    int codigo_cliente, numero_quarto;
+    char data_entrada[11], data_saida[11];
+
+    printf("Digite o código do cliente: ");
+    scanf("%d", &codigo_cliente);
+
+    // Verificar se o cliente existe
+    int cliente_encontrado = 0;
+    for (int i = 0; i < total_clientes; i++) {
+        if (clientes[i].codigo == codigo_cliente) {
+            cliente_encontrado = 1;
+            break;
+        }
+    }
+    if (!cliente_encontrado) {
+        printf("Cliente não encontrado.\n");
+        return;
+    }
+
+    printf("Digite a data de entrada (DD/MM/YYYY): ");
+    scanf("%s", data_entrada);
+    printf("Digite a data de saída (DD/MM/YYYY): ");
+    scanf("%s", data_saida);
+
+    // Procurar um quarto desocupado
+    int quarto_encontrado = 0;
+    for (int i = 0; i < total_quartos; i++) {
+        if (strcmp(quartos[i].status, "desocupado") == 0) {
+            numero_quarto = quartos[i].numero;
+            strcpy(quartos[i].status, "ocupado");
+            quarto_encontrado = 1;
+            break;
+        }
+    }
+    if (!quarto_encontrado) {
+        printf("Nenhum quarto desocupado disponível.\n");
+        return;
+    }
+
+    Estadia e;
+    e.codigo = total_estadias + 1;
+    e.codigo_cliente = codigo_cliente;
+    e.numero_quarto = numero_quarto;
+    strcpy(e.data_entrada, data_entrada);
+    strcpy(e.data_saida, data_saida);
+    e.quantidade_diarias = calcular_diarias(data_entrada, data_saida);
+
+    estadias[total_estadias++] = e;
+    printf("Estadia cadastrada com sucesso. Código: %d\n", e.codigo);
+}
+
+void baixa_estadia() {
+    int codigo_estadia;
+    printf("Digite o código da estadia: ");
+    scanf("%d", &codigo_estadia);
+
+    for (int i = 0; i < total_estadias; i++) {
+        if (estadias[i].codigo == codigo_estadia) {
+            int numero_quarto = estadias[i].numero_quarto;
+            for (int j = 0; j < total_quartos; j++) {
+                if (quartos[j].numero == numero_quarto) {
+                    strcpy(quartos[j].status, "desocupado");
+                    break;
+                }
+            }
+            float valor_total = estadias[i].quantidade_diarias * quartos[numero_quarto - 1].valor_diaria;
+            printf("Valor total a ser pago: R$%.2f\n", valor_total);
+            return;
+        }
+    }
+    printf("Estadia não encontrada.\n");
+}
+
+void pesquisar_cliente() {
+    int codigo;
+    char nome[50];
+    printf("Digite o código ou nome do cliente: ");
+    scanf(" %[^\n]", nome);
+
+    for (int i = 0; i < total_clientes; i++) {
+        if (clientes[i].codigo == atoi(nome) || strcmp(clientes[i].nome, nome) == 0) {
+            printf("Cliente encontrado:\n");
+            printf("Código: %d\nNome: %s\nEndereço: %s\nTelefone: %s\n",
+                   clientes[i].codigo, clientes[i].nome, clientes[i].endereco, clientes[i].telefone);
+            return;
+        }
+    }
+    printf("Cliente não encontrado.\n");
+}
+
+void pesquisar_funcionario() {
+    int codigo;
+    char nome[50];
+    printf("Digite o código ou nome do funcionário: ");
+    scanf(" %[^\n]", nome);
+
+    for (int i = 0; i < total_funcionarios; i++) {
+        if (funcionarios[i].codigo == atoi(nome) || strcmp(funcionarios[i].nome, nome) == 0) {
+            printf("Funcionário encontrado:\n");
+            printf("Código: %d\nNome: %s\nTelefone: %s\nCargo: %s\nSalário: %.2f\n",
+                   funcionarios[i].codigo, funcionarios[i].nome, funcionarios[i].telefone, funcionarios[i].cargo, funcionarios[i].salario);
+            return;
+        }
+    }
+    printf("Funcionário não encontrado.\n");
+}
+
+void mostrar_estadias_cliente() {
+    int codigo_cliente;
+    printf("Digite o código do cliente: ");
+    scanf("%d", &codigo_cliente);
+
+    printf("Estadias do cliente %d:\n", codigo_cliente);
+    for (int i = 0; i < total_estadias; i++) {
+        if (estadias[i].codigo_cliente == codigo_cliente) {
+            printf("Código da estadia: %d\nData de entrada: %s\nData de saída: %s\nNúmero do quarto: %d\nQuantidade de diárias: %d\n",
+                   estadias[i].codigo, estadias[i].data_entrada, estadias[i].data_saida, estadias[i].numero_quarto, estadias[i].quantidade_diarias);
+        }
+    }
+}
+
+int main () {
+     int status = 1;
+    while(status){
+        printf("1 - Cadastrar cliente\n");
+        printf("2 - Cadastrar quarto\n");
+        printf("3 - Cadastrar estadia\n");
+        printf("4 - Cadastrar funcionario\n");
+        printf("5 - Procurar estadia\n");
+        printf("6 - Procurar cliente\n");
+        printf("7 - Procurar funcionario\n");
+        printf("8 - Mostrar estadias\n");
+        printf("9 - Sair\n");
+        int option;
+        scanf("%d", &option);
+
+
+        switch(option){
+            case 1:
+                cadastrar_cliente();
+                break;
+            case 2:
+                cadastrar_quarto(); 
+                break;
+            case 3:
+                cadastrar_estadia();  
+                break;
+            case 4:
+                cadastrar_funcionario();
+                break;
+            case 5:
+                baixa_estadia();
+                break;
+            case 6:
+                pesquisar_cliente();
+                break;
+            case 7:
+                pesquisar_funcionario();
+                break;
+            case 8:
+                mostrar_estadias_cliente();
+                break;
+            default:
+                printf("Saindo do sistema...");
+                status = 0;
+                break;
+        }
+    }
+}
