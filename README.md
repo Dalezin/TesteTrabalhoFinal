@@ -25,7 +25,7 @@ Durante o desenvolvimento e testes do projeto, foram encontrados os seguintes pr
 
 1. **Erro de Compilação com Munit:**
    Ao tentar compilar e executar testes com a biblioteca Munit para testes unitários, ocorreram erros para encontrar a pasta ex: gcc.exe: error: .h: No such file or directory, apesar de ser possivel encontrar o arquivo ao utlizar cd para abrir a pasta do munit e dir para encontrar o aplicativo
-2. **Tentativas**
+2. **Tentativas:**
    Para tentar contornar tentei utilizar diversas alternativas como MakeFile, adicionar a pasta munit.h em um atalho, mas nada funciona. Acredito que o problema seja na minha maquina, pois todo o restante do codigo não da erro.
 
 ## Como Executar o Projeto
