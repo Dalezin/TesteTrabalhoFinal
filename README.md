@@ -39,6 +39,7 @@ Para compilar e executar o projeto:
    Onde esta pastaDoMunit substituir pelo caminho ate a pasta do munit
 4. Apos a copilação rode com:
    ./test_hotel_management
+
 5.Caso queira tentar com make file utilize:
   make
   ./test_hotel_management
