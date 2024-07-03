@@ -1,0 +1,15 @@
+CC = gcc
+CFLAGS = -I. -I\Users\pedro\OneDrive\Documents\trabalhoFinal\munit\munit.h
+LDFLAGS = -L\Users\pedro\OneDrive\Documents\trabalhoFinal\munit\munit.h -lmunit -lm
+
+TEST_TARGET = test_hotel_management.c
+
+SOURCES = hotel_management.c test_hotel_management.c
+
+all: $(TEST_TARGET)
+
+$(TEST_TARGET): $(SOURCES)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+
+clean:
+	rm -f $(TEST_TARGET)
